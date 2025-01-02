@@ -4,24 +4,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Blog</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Style pour l'interface */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+        }
+        main {
+            padding: 20px;
+        }
+        .article {
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .article h2 {
+            margin-top: 0;
+        }
+        .article-footer {
+            margin-top: 10px;
+        }
+        .like-button, .comment-button {
+            background: #333;
+            color: white;
+            padding: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .like-button:hover, .comment-button:hover {
+            background: #555;
+        }
+        .add-article {
+            margin-top: 20px;
+        }
+        .add-article input,
+        .add-article textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .add-article button {
+            background: #333;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .add-article button:hover {
+            background: #555;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <div class="navbar">
-            <h1>My Blog</h1>
-            <div id="userStatus">
-                <span id="userName">Please log in to add articles.</span>
-                <button id="loginButton">Login with Google</button>
-                <button id="logoutButton" style="display:none;">Logout</button>
-            </div>
-        </div>
+        <h1>My Blog</h1>
+        <p>Welcome to my blog! Here, I share my thoughts and projects.</p>
     </header>
-    
     <main>
-        <section id="articles" class="articles-container">
-            <!-- Articles will be dynamically added here -->
-        </section>
+        <section id="articles"></section>
 
         <section class="add-article">
             <h2>Add a New Article</h2>
@@ -33,11 +90,10 @@
     </main>
 
     <script type="module">
-        // Importer Firebase depuis le CDN
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
-    
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyCz05n1FzvJTo54VA30UUV8VWBlwKZ7w5I",
             authDomain: "webblog-8922a.firebaseapp.com",
@@ -47,25 +103,22 @@
             appId: "1:576977340463:web:d4b1e510d88d012f295eda",
             measurementId: "G-E3WTSKQRLW"
         };
-    
-        // Initialiser Firebase
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-    
-        // Vérifier l'état de l'utilisateur (connecté ou déconnecté)
+
+        // Vérifier l'état de l'utilisateur
         onAuthStateChanged(auth, user => {
             if (user) {
-                document.getElementById('userName').textContent = user.displayName;
                 document.getElementById('loginButton').style.display = 'none';
                 document.getElementById('logoutButton').style.display = 'inline-block';
             } else {
-                document.getElementById('userName').textContent = 'Please log in to add articles.';
                 document.getElementById('loginButton').style.display = 'inline-block';
                 document.getElementById('logoutButton').style.display = 'none';
             }
         });
-    
+
         // Fonction de connexion Google
         document.getElementById('loginButton').addEventListener('click', async () => {
             const provider = new GoogleAuthProvider();
@@ -75,7 +128,7 @@
                 console.error("Error signing in: ", e);
             }
         });
-    
+
         // Fonction de déconnexion
         document.getElementById('logoutButton').addEventListener('click', async () => {
             try {
@@ -84,7 +137,7 @@
                 console.error("Error signing out: ", e);
             }
         });
-    
+
         // Ajouter un article
         document.getElementById('addArticle').addEventListener('click', async () => {
             const title = document.getElementById('title').value.trim();
@@ -92,10 +145,10 @@
             const tags = document.getElementById('tags').value.split(',').map(tag => tag.trim());
             const date = new Date();
             const user = auth.currentUser;
-    
+
             if (title && content && user) {
                 try {
-                    await addDoc(collection(db, "articles"), {
+                    const docRef = await addDoc(collection(db, "articles"), {
                         title,
                         content,
                         author: user.displayName,
@@ -105,10 +158,12 @@
                         comments: [],
                         userId: user.uid
                     });
-    
+
+                    // Afficher l'article dans le DOM
                     const articleSection = document.getElementById('articles');
                     const article = document.createElement('div');
                     article.classList.add('article');
+                    article.setAttribute('data-id', docRef.id);
                     article.innerHTML = `
                         <h2>${title}</h2>
                         <p>${content}</p>
@@ -119,7 +174,7 @@
                         </div>
                     `;
                     articleSection.appendChild(article);
-    
+
                     document.getElementById('title').value = '';
                     document.getElementById('content').value = '';
                     document.getElementById('tags').value = '';
@@ -130,7 +185,7 @@
                 alert('Please fill out all required fields and make sure you are logged in!');
             }
         });
-    
+
         // Récupérer les articles
         async function fetchArticles() {
             const querySnapshot = await getDocs(collection(db, "articles"));
@@ -139,6 +194,7 @@
                 const data = doc.data();
                 const article = document.createElement('div');
                 article.classList.add('article');
+                article.setAttribute('data-id', doc.id);
                 article.innerHTML = `
                     <h2>${data.title}</h2>
                     <p>${data.content}</p>
@@ -150,10 +206,35 @@
                 `;
                 articlesSection.appendChild(article);
             });
+
+            // Ajouter des gestionnaires d'événements pour like et comment
+            const likeButtons = document.querySelectorAll('.like-button');
+            likeButtons.forEach((button) => {
+                button.addEventListener('click', async (e) => {
+                    const articleId = e.target.closest('.article').getAttribute('data-id');
+                    const articleRef = doc(db, "articles", articleId);
+                    await updateDoc(articleRef, {
+                        likes: increment(1)
+                    });
+                });
+            });
+
+            const commentButtons = document.querySelectorAll('.comment-button');
+            commentButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    const articleId = button.closest('.article').getAttribute('data-id');
+                    const comment = prompt("Enter your comment:");
+                    if (comment) {
+                        const articleRef = doc(db, "articles", articleId);
+                        updateDoc(articleRef, {
+                            comments: firebase.firestore.FieldValue.arrayUnion(comment)
+                        });
+                    }
+                });
+            });
         }
-    
+
         fetchArticles();
     </script>
-    
 </body>
 </html>
