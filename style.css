@@ -1,0 +1,127 @@
+/* Global Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+h1 {
+    font-size: 2rem;
+}
+
+main {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+}
+
+#userStatus {
+    display: flex;
+    align-items: center;
+}
+
+#userStatus span {
+    margin-right: 20px;
+}
+
+/* Article Styles */
+.articles-container {
+    margin-top: 30px;
+}
+
+.article {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.article:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.article h2 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    color: #007bff;
+}
+
+.article p {
+    color: #666;
+}
+
+.article-footer {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.article-footer button {
+    margin-right: 10px;
+}
+
+/* Comment and Like Buttons */
+button.like-button, button.comment-button {
+    background-color: #28a745;
+}
+
+button.like-button:hover, button.comment-button:hover {
+    background-color: #218838;
+}
+
+.add-article input, .add-article textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.add-article button {
+    width: 100%;
+    background-color: #28a745;
+}
+
+.add-article button:hover {
+    background-color: #218838;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    main {
+        padding: 10px;
+    }
+}

@@ -43,6 +43,7 @@ document.getElementById("loginButton").addEventListener("click", async () => {
   }
 });
 
+
 // Sign out
 document.getElementById("logoutButton").addEventListener("click", async () => {
   try {
